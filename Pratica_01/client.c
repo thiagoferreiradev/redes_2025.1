@@ -1,7 +1,9 @@
+#define _POSIX_C_SOURCE 200112L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <arpa/inet.h>
 
 #define PORT 7658 // Porta que o servidor vai abrir o socket.
@@ -71,7 +73,7 @@ read_args(char *ip, int *port)
     op = getchar();
 
     // Requisita uma porta até que a entrada seja válida.
-    if (op == 's') {
+    if (op == 's' || op == 'S') {
         do {
             printf("Insira a porta (1–65535)\n<< ");
 
@@ -102,10 +104,14 @@ main(int argc, char **argv)
 {
     char ip[IP_SIZE];
     int port = PORT, opt = 0;
+    int sock_fd;
+
+    struct sockaddr_in server_addr;
+    char send_buffer[MSG_MAX], recv_buffer[MSG_MAX];
 
     if (argc > 1) {
         // Parser de argumentos via linha de comando.
-        while ((opt = getopt(argc, argv, "i:p:h")) != -1) {
+        while ((opt = getopt(argc, argv, "i:p:")) != -1) {
             switch (opt) {
             case 'i':
                 if (!is_valid_ip(optarg)) {
@@ -134,7 +140,72 @@ main(int argc, char **argv)
         read_args(ip, &port);
     }
 
-    printf("Ip definido como %s:%d\n", ip, port);
+    printf("Conectando a %s:%d\n", ip, port);
+
+    // Cria o socket TCP IPV4.
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sock_fd < 0) {
+        fprintf(stderr, "Não foi possível criar o socket: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    // Configura o endereço do servidor.
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port   = htons(port);
+
+    // Não precisa verificar o IP, pois is_valid_ip() garante que o programa só aceitará IPV4 válidos.
+    inet_pton(AF_INET, ip, &server_addr.sin_addr);
+
+    // Tenta conectar ao servidor, encerra o programa se não for possível.
+    if (connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        fprintf(stderr, "Não foi possível conectar à: %s:%d: %s\n", ip, port, strerror(errno));
+        close(sock_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Conectado com sucesso! Digite \"sair\" para encerrar.\n");
+
+    // Loop de mensagens.
+    while (1) {
+        printf(">> ");
+        read_string(send_buffer, MSG_MAX);
+
+        // Caso a mensagem seja "exit", encerra.
+        if (strcmp(send_buffer, "exit") == 0) {
+            printf("A conexão será encerrada.\n");
+            break;
+        }
+
+        // Envia mensagem lida ao servidor.
+        if (write(sock_fd, send_buffer, strlen(send_buffer)) < 0) {
+            fprintf(stderr, "Não foi possível enviar a mensagem: %s\n", strerror(errno));
+            break;
+        }
+
+        // Aguarda a resposta do servidor.
+        int nread = read(sock_fd, recv_buffer, MSG_MAX);
+
+        if (nread < 0) {
+            fprintf(stderr, "Não foi possível ler a resposta: %s\n", strerror(errno));
+            break;
+        }
+
+        if (nread == 0) {
+            printf("O servidor fechou a conexão..\n");
+            break;
+        }
+
+        recv_buffer[nread] = '\0';
+
+        // Exibe a mensagem recebida do servidor.
+        printf("<< %s\n", recv_buffer);
+        printf("---------------------------\n");
+    }
+
+    // Fecha o socket antes de encerrar.
+    close(sock_fd);
 
     return 0;
 }

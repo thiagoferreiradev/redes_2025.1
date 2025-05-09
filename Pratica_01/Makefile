@@ -1,5 +1,5 @@
 CC		:= gcc
-CFLAGS	:= -std=c99 -Wall -Wextra -pthread -Os -march=native
+CFLAGS	:= -std=c99 -Wall -Wextra -Os -march=native
 
 all: client
 
