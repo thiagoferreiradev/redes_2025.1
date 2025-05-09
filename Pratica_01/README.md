@@ -9,3 +9,13 @@ Exemplo:
 >> [17:56:28] Mensagem
 
 ```
+
+- Requisitos para compilar o projeto
+    - Sistema Unix-like (Linux, MacOS, *BSD)
+    - gcc (recomendado) ou outro compilador que suporte C99 e API POSIX.
+    - make
+
+E então:
+```make``` ou  ```make CC=clang CFLAGS="-std=c99 -Wall"``` (via clang)
+
+Irá gerar os binários server e client.
