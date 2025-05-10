@@ -13,7 +13,7 @@ usage()
 {
     printf("Uso: client [OPÇÕES]\n");
     printf("Opções:\n");
-    printf("    -i [ip] - Define o IP que será conectado.\n");
+    printf("    -i [ip] - Define o IP que será conectado, padrão: 127.0.0.1.\n");
     printf("    -p [porta] - Define a porta que será conectada, padrão: 7658.\n\n");
     printf("Exemplo de uso:\n");
     printf("client -i 127.0.0.1 -p 80\n");
@@ -24,9 +24,11 @@ usage()
 int
 main(int argc, char **argv)
 {
-    char ip[IP_SIZE];
+    char ip[IP_SIZE] = IP;
     int port = PORT, opt = 0;
     int sock_fd;
+
+    int ip_done = 0, port_done = 0;
 
     struct sockaddr_in server_addr;
     char send_buffer[MSG_MAX], recv_buffer[MSG_MAX];
@@ -43,6 +45,8 @@ main(int argc, char **argv)
 
                 snprintf(ip, IP_SIZE, "%s", optarg);
 
+                ip_done = 1;
+
                 break;
             case 'p':
                 port = atoi(optarg);
@@ -52,6 +56,8 @@ main(int argc, char **argv)
                     exit(EXIT_FAILURE);
                 }
 
+                port_done = 1;
+
                 break;
             default:
                 usage();
@@ -59,8 +65,13 @@ main(int argc, char **argv)
                 break;
             }
         }
-    } else {
+    }
+
+    if (!ip_done) {
         read_ip(ip);
+    }
+
+    if (!port_done) {
         read_port(&port);
     }
 
@@ -92,12 +103,12 @@ main(int argc, char **argv)
     printf("Conectado com sucesso! Digite \"sair\" para encerrar.\n");
 
     // Loop de mensagens.
-    while (1) {
+    for (;;) {
         printf(">> ");
         read_string(send_buffer, MSG_MAX);
 
-        // Caso a mensagem seja "exit", encerra.
-        if (strcmp(send_buffer, "exit") == 0) {
+        // Caso a mensagem seja "sair", encerra.
+        if (strcmp(send_buffer, "sair") == 0) {
             printf("A conexão será encerrada.\n");
             break;
         }

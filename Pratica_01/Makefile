@@ -30,4 +30,4 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f $(OBJDIR)/*.o client server
+	rm -rf obj/ $(OBJDIR)/*.o client server
