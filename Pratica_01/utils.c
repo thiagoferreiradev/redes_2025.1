@@ -45,28 +45,35 @@ is_valid_port(int port)
 void
 read_ip(char *ip)
 {
-    do {
-        printf("Insira o IP\n<< ");
-        read_string(ip, IP_SIZE);
+    char op[2] = "";
 
-        if (!is_valid_ip(ip)) {
-            printf("IP inválido. Tente novamente.\n");
-        }
+    printf("Deseja alterar o ip? (s/n)\n<< ");
 
-    } while (!is_valid_ip(ip));
+    read_string(op, sizeof(op));
+
+    if (tolower(op[0]) == 's') {
+        do {
+            printf("Insira o IP\n<< ");
+            read_string(ip, IP_SIZE);
+
+            if (!is_valid_ip(ip)) {
+                printf("IP inválido. Tente novamente.\n");
+            }
+
+        } while (!is_valid_ip(ip));
+    }
 }
 
 void
 read_port(int *port)
 {
-    char op = ' ';
+    char op[2] = "";
 
     printf("Deseja alterar a porta? (s/n)\n<< ");
 
-    op = getchar();
+    read_string(op, sizeof(op));
 
-    // Requisita uma porta até que a entrada seja válida.
-    if (op == 's' || op == 'S') {
+    if (tolower(op[0]) == 's') {
         do {
             printf("Insira a porta (1–65535)\n<< ");
 
@@ -74,6 +81,8 @@ read_port(int *port)
                 clean_stdin();
                 *port = -1;
                 printf("Porta inválida. Tente novamente.\n");
+            } else {
+                clean_stdin();
             }
         } while (!is_valid_port(*port));
     }
