@@ -74,16 +74,27 @@ read_port(int *port)
     read_string(op, sizeof(op));
 
     if (tolower(op[0]) == 's') {
+        char buffer[100];
+        char *endptr;
+        long p = 0;
+
         do {
             printf("Insira a porta (1–65535)\n<< ");
 
-            if (scanf("%d", port) != 1) {
-                clean_stdin();
-                *port = -1;
-                printf("Porta inválida. Tente novamente.\n");
+            read_string(buffer, sizeof(buffer));
+
+            errno = 0; // Reseta errno antes da conversão.
+
+            p = strtol(buffer, &endptr, 10);
+
+            if (errno == ERANGE || p < 1 || p > 65535) {
+                printf("Porta fora do intervalo válido. Tente novamente.\n");
+            } else if (endptr == buffer || *endptr != '\0') {
+                printf("A entrada não é um número inteiro válido. Tente novamente.\n");
             } else {
-                clean_stdin();
+                *port = (int)p;
+                break;
             }
-        } while (!is_valid_port(*port));
+        } while (1);
     }
 }

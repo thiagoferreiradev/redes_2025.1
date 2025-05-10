@@ -6,6 +6,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <ctype.h>
+#include <errno.h>
 
 #define IP "127.0.0.1"
 #define PORT 7658 // Porta que o servidor vai abrir o socket.
