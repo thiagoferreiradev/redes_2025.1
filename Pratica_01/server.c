@@ -18,7 +18,7 @@ usage()
     printf("    -p [porta] - Define a porta que será conectada, padrão: 7658.\n\n");
     printf("Exemplo de uso:\n");
     printf("server -p 80\n");
-    printf("server                 o programa irá requisitar o ip e a porta interativamente.");
+    printf("server                 o programa irá requisitar o ip e a porta interativamente.\n");
 }
 
 int
