@@ -1,12 +1,12 @@
 # Prática 01
 
 A prática 01 consiste em um servidor de eco (e um cliente para testá-lo). \
-O cliente envia uma mensagem e o servidor retorna a mesma mensagem, contendo a exata hora que ela foi recebida.
+O cliente envia uma mensagem e o servidor retorna a mesma mensagem, contendo o timestamp em que ela foi recebida.
 
 Exemplo:
 ```
 << Mensagem
->> [17:56:28] Mensagem
+>> [09-05-2025 17:56:28] Mensagem
 
 ```
 
