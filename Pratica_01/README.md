@@ -11,7 +11,7 @@ Exemplo:
 ```
 
 - Requisitos para compilar o projeto
-    - Sistema Unix-like (Linux, MacOS, *BSD)
+    - Sistema Unix-like (Linux, MacOS, *BSD) ou Windows via WSL
     - gcc (recomendado) ou outro compilador que suporte C99 e API POSIX.
     - make
 
